@@ -1,4 +1,6 @@
 Build
+Include
+Lib
 *.obj
 *.pdb
 AuraSdk*

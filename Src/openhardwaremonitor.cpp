@@ -128,6 +128,7 @@ public:
             hr = pEnumerator->Next(WBEM_INFINITE, 1, &pclsObj, &uReturn);
             if (FAILED(hr) || 0 == uReturn)
             {
+                if (pclsObj != NULL) pclsObj->Release();
                 break;
             }
 
@@ -135,6 +136,8 @@ public:
             hr = pclsObj->Get(L"SensorType", 0, &vtProp, NULL, NULL);
             if (FAILED(hr) || 0 != wcscmp(vtProp.bstrVal, L"Temperature"))
             {
+                pclsObj->Release();
+                VariantClear(&vtProp);
                 continue;
             }
             
@@ -143,6 +146,8 @@ public:
             hr = pclsObj->Get(L"Value", 0, &vtProp, NULL, NULL);
             if (FAILED(hr)) {
                 cout << "Failed to get temp value." << endl;
+                VariantClear(&vtProp);
+                pclsObj->Release();
                 continue;
             }
             val = vtProp.fltVal;
@@ -150,6 +155,8 @@ public:
             hr = pclsObj->Get(L"Min", 0, &vtProp, NULL, NULL);
             if (FAILED(hr)) {
                 cout << "Failed to get temp value." << endl;
+                VariantClear(&vtProp);
+                pclsObj->Release();
                 continue;
             }
             min = vtProp.fltVal;
@@ -157,6 +164,8 @@ public:
             hr = pclsObj->Get(L"Max", 0, &vtProp, NULL, NULL);
             if (FAILED(hr)) {
                 cout << "Failed to get temp value." << endl;
+                VariantClear(&vtProp);
+                pclsObj->Release();
                 continue;
             }
             max = vtProp.fltVal;
@@ -164,6 +173,8 @@ public:
             hr = pclsObj->Get(L"Name", 0, &vtProp, NULL, NULL);
             if (FAILED(hr)) {
                 cout << "Failed to get temp value." << endl;
+                VariantClear(&vtProp);
+                pclsObj->Release();
                 continue;
             }
             if (0 == wcscmp(vtProp.bstrVal, L"GPU Core")) {
@@ -183,7 +194,6 @@ public:
             // wcout << objText << endl;
 
             VariantClear(&vtProp);
-
             pclsObj->Release();
         }
 

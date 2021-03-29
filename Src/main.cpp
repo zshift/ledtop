@@ -21,6 +21,7 @@ bool setup();
 bool logiSetLed(uint64_t color);
 void shutdown();
 uint64_t getColor(temp t, uint64_t limit);
+void handle_eptr(exception_ptr eptr);
 
 int main()
 {
@@ -44,7 +45,7 @@ int main()
         return 1;
     }
 
-    while(true)
+    while (true)
     {
         temps t = ohm->GetTemps();
         if (t.nil == true)
@@ -59,7 +60,8 @@ int main()
         asus->SetLeds(cpuColor);
 
         cout << "GPU temp: " << t.gpu.val << "C" << endl;
-        cout << "CPU temp: " << t.cpu.val << "C" << endl << endl;
+        cout << "CPU temp: " << t.cpu.val << "C" << endl
+             << endl;
 
         this_thread::sleep_for(chrono::milliseconds(1000));
     }
@@ -80,15 +82,26 @@ bool setup()
 
 bool logiSetup()
 {
-    if (!LogiLedInit())
+    exception_ptr eptr;
+    try
     {
-        cout << "Init was not successfull" << endl;
-        return false;
+
+        if (!LogiLedInit())
+        {
+            cout << "Unable to connect to Logitech devices. Make sure you are running Logitech Gaming Software." << endl;
+            return false;
+        }
+        if (!LogiLedSaveCurrentLighting())
+        {
+            cout << "Could not save current Logi lighting" << endl;
+            LogiLedShutdown();
+            return false;
+        }
     }
-    if (!LogiLedSaveCurrentLighting())
+    catch (...)
     {
-        cout << "Could not save current lighting" << endl;
-        LogiLedShutdown();
+        eptr = std::current_exception();
+        handle_eptr(eptr);
         return false;
     }
     return true;
@@ -125,20 +138,26 @@ bool comSetup()
     return true;
 }
 
-uint64_t getColor(temp t, uint64_t limit) {
-    if (t.val >= limit) {
+// Returns a color in ABGR hex.
+uint64_t getColor(temp t, uint64_t limit)
+{
+    if (t.val >= limit)
+    {
         return 0xFF0000FF; // RED
     }
 
-    if (t.val >= limit * 0.9) {
+    if (t.val >= limit * 0.9)
+    {
         return 0xFF0064FF; // Orange at 90%
     }
 
-    if (t.val >= limit * 0.8) {
+    if (t.val >= limit * 0.8)
+    {
         return 0xFF00FFFF; // Yellow at 80%
     }
 
-    if (t.val >= limit * 0.7) {
+    if (t.val >= limit * 0.7)
+    {
         return 0xFF00FF64; // YellowGreen at 70%
     }
 
@@ -166,4 +185,19 @@ void shutdown()
     LogiLedShutdown();
 
     CoUninitialize();
+}
+
+void handle_eptr(exception_ptr eptr)
+{
+    try
+    {
+        if (eptr)
+        {
+            rethrow_exception(eptr);
+        }
+    }
+    catch (const exception &e)
+    {
+        cout << "Caught exception \"" << e.what() << "\"\n";
+    }
 }
