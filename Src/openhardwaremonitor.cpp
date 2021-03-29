@@ -2,34 +2,15 @@
 #include <comdef.h>
 #include <Wbemidl.h>
 
+#include "openhardwaremonitor.h"
+
 using namespace std;
-
-#pragma once
-
-struct temp {
-    uint32_t min;
-    uint32_t max;
-    uint32_t val;
-};
-
-struct temps
-{
-    bool nil;
-    temp gpu;
-    temp cpu;
-};
 
 class OpenHardwareMonitor
 {
 private:
     IWbemLocator *pLoc;
     IWbemServices *pSvc;
-
-    OpenHardwareMonitor()
-    {
-        pLoc = nullptr;
-        pSvc = nullptr;
-    }
 
     OpenHardwareMonitor(IWbemLocator *pLocator, IWbemServices *pServices)
     {
@@ -38,7 +19,7 @@ private:
     }
 
 public:
-    static OpenHardwareMonitor *Init()
+    static unique_ptr<OpenHardwareMonitor> Init()
     {
         IWbemLocator *pLoc = nullptr;
 
@@ -97,7 +78,7 @@ public:
             return nullptr;
         }
 
-        return new OpenHardwareMonitor(pLoc, pSvc);
+        return make_unique<OpenHardwareMonitor>(pLoc, pSvc);
     }
 
     temps GetTemps()

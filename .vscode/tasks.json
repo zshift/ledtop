@@ -11,7 +11,10 @@
 				// "/nologo",
 				"/Fe:",
 				"${fileDirname}\\${fileBasenameNoExtension}.exe",
-				"${file}"
+				"${file}",
+				"/link",
+				"/LIBPATH",
+				"Lib/x86/LogitechLEDLib.lib"
 			],
 			"options": {
 				"cwd": "${workspaceFolder}"

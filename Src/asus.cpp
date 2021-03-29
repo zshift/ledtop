@@ -1,22 +1,11 @@
 #include <iostream>
-#import "libid:F1AA5209-5217-4B82-BA7E-A68198999AFA"
-
-using namespace std;
-using namespace AuraServiceLib;
-
-#pragma once
+#include "asus.h"
 
 class AsusLed
 {
 private:
     IAuraSdkPtr sdk;
     IAuraSyncDeviceCollectionPtr devices;
-
-    AsusLed()
-    {
-        sdk = nullptr;
-        devices = nullptr;
-    }
 
     AsusLed(IAuraSdkPtr sdkPtr, IAuraSyncDeviceCollectionPtr devicesPtr)
     {
@@ -25,7 +14,7 @@ private:
     }
 
 public:
-    static AsusLed *Init()
+    static unique_ptr<AsusLed> Init()
     {
         // CreateAura  SDK Instance
         IAuraSdkPtr sdk = nullptr;
@@ -41,11 +30,9 @@ public:
         sdk->SwitchMode();
 
         // Enumerate all devices
-        IAuraSyncDeviceCollectionPtr devices;
+        auto devices = sdk->Enumerate(0); // 0 means ALL
 
-        devices = sdk->Enumerate(0); // 0 means ALL
-
-        return new AsusLed(sdk, devices);
+        return make_unique<AsusLed>(sdk, devices);
     }
 
     void SetLeds(uint64_t color)
@@ -53,11 +40,11 @@ public:
         // Traverse all devices
         for (int i = 0; i < devices->Count; i++)
         {
-            IAuraSyncDevicePtr dev = devices->Item[i];
-            IAuraRgbLightCollectionPtr lights = dev->Lights;
+            auto dev = devices->Item[i];
+            auto lights = dev->Lights;
             for (int j = 0; j < lights->Count; j++)
             {
-                IAuraRgbLightPtr light = lights->Item[j];
+                auto light = lights->Item[j];
                 light->Color = color;
             }
             dev->Apply();
