@@ -1,59 +1,46 @@
 #include <iostream>
+
 #include "asus.h"
 
-class AsusLed
+AsusLed::~AsusLed()
 {
-private:
-    IAuraSdkPtr sdk;
-    IAuraSyncDeviceCollectionPtr devices;
+    sdk->Release();
+    devices->Release();
+}
 
-    AsusLed(IAuraSdkPtr sdkPtr, IAuraSyncDeviceCollectionPtr devicesPtr)
+unique_ptr<AsusLed> AsusLed::Init()
+{
+    // CreateAura  SDK Instance
+    IAuraSdkPtr sdk = nullptr;
+    HRESULT hr = sdk.CreateInstance(__uuidof(AuraSdk), nullptr, CLSCTX_INPROC_SERVER);
+    if (FAILED(hr))
     {
-        sdk = sdkPtr;
-        devices = devicesPtr;
+        cout << "Failed to create Aura sdk instance. Error code 0x" << hex << hr << endl;
+        CoUninitialize();
+        return nullptr;
     }
 
-public:
-    static unique_ptr<AsusLed> Init()
+    // Aqcuire Control
+    sdk->SwitchMode();
+
+    // Enumerate all devices
+    auto devices = sdk->Enumerate(0); // 0 means ALL
+
+    return make_unique<AsusLed>(sdk, devices);
+}
+
+void AsusLed::SetLeds(uint64_t color)
+{
+    // Traverse all devices
+    for (int i = 0; i < devices->Count; i++)
     {
-        // CreateAura  SDK Instance
-        IAuraSdkPtr sdk = nullptr;
-        HRESULT hr = sdk.CreateInstance(__uuidof(AuraSdk), nullptr, CLSCTX_INPROC_SERVER);
-        if (FAILED(hr))
+        auto dev = devices->Item[i];
+        auto lights = dev->Lights;
+        for (int j = 0; j < lights->Count; j++)
         {
-            cout << "Failed to create Aura sdk instance. Error code 0x" << hex << hr << endl;
-            CoUninitialize();
-            return nullptr;
+            auto light = lights->Item[j];
+            light->Color = color;
         }
-
-        // Aqcuire Control
-        sdk->SwitchMode();
-
-        // Enumerate all devices
-        auto devices = sdk->Enumerate(0); // 0 means ALL
-
-        return make_unique<AsusLed>(sdk, devices);
+        dev->Apply();
     }
-
-    void SetLeds(uint64_t color)
-    {
-        // Traverse all devices
-        for (int i = 0; i < devices->Count; i++)
-        {
-            auto dev = devices->Item[i];
-            auto lights = dev->Lights;
-            for (int j = 0; j < lights->Count; j++)
-            {
-                auto light = lights->Item[j];
-                light->Color = color;
-            }
-            dev->Apply();
-        }
-    }
-
-    ~AsusLed()
-    {
-        sdk->Release();
-        devices->Release();
-    }
-};
+}

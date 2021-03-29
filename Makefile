@@ -1,6 +1,6 @@
-Build/main.exe: Src/*.cpp
+Build/main.exe: Src/*.cpp Src/*.h
 	powershell "New-Item -ErrorAction Ignore -ItemType directory $(dir $@); $$null"
-	cl.exe /Zi /EHsc /Fe: $@ Src/main.cpp /link /LIBPATH Lib/x86/LogitechLEDLib.lib
+	cl.exe /Zi /EHsc /Fe: $@ Src/main.cpp Src/asus.cpp Src/openhardwaremonitor.cpp /link /LIBPATH Lib/x86/LogitechLEDLib.lib
 
 .PHONY: clean
 clean:

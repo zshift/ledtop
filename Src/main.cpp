@@ -3,15 +3,14 @@
 #include <iostream>
 #include <chrono>
 #include <thread>
-#include "../Include/LogitechLEDLib.h"
-
-using namespace std;
-
 #include <comdef.h>
 #include <Wbemidl.h>
 
 #include "asus.h"
 #include "openhardwaremonitor.h"
+#include "../Include/LogitechLEDLib.h"
+
+using namespace std;
 
 #pragma comment(lib, "wbemuuid.lib")
 #pragma comment(lib, "LogitechLEDLib.lib")
@@ -63,7 +62,7 @@ int main()
         cout << "CPU temp: " << t.cpu.val << "C" << endl
              << endl;
 
-        this_thread::sleep_for(chrono::milliseconds(1000));
+        this_thread::sleep_for(chrono::seconds(10));
     }
 
     shutdown();
