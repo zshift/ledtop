@@ -1,0 +1,4 @@
+Build
+*.obj
+*.pdb
+AuraSdk*

@@ -1,0 +1,20 @@
+{
+    "files.associations": {
+        "ostream": "cpp",
+        "*.tli": "cpp",
+        "*.tlh": "cpp",
+        "istream": "cpp",
+        "memory": "cpp",
+        "tuple": "cpp",
+        "type_traits": "cpp",
+        "utility": "cpp",
+        "xlocnum": "cpp",
+        "xutility": "cpp",
+        "ios": "cpp",
+        "iostream": "cpp",
+        "chrono": "cpp",
+        "system_error": "cpp",
+        "limits": "cpp",
+        "thread": "cpp"
+    }
+}
