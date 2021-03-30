@@ -2,8 +2,6 @@
 #include <Wbemidl.h>
 #include <memory>
 
-using namespace std;
-
 #pragma once
 
 struct temp
@@ -22,15 +20,16 @@ struct temps
 
 class OpenHardwareMonitor
 {
-private:
-    IWbemLocator *pLoc;
-    IWbemServices *pSvc;
-
 public:
     OpenHardwareMonitor(IWbemLocator *pLocator, IWbemServices *pServices)
         : pLoc(pLocator),
           pSvc(pServices) {}
-    static unique_ptr<OpenHardwareMonitor> Init();
-    temps GetTemps();
     ~OpenHardwareMonitor();
+
+    static std::unique_ptr<OpenHardwareMonitor> Init();
+    temps GetTemps();
+
+private:
+    IWbemLocator *pLoc;
+    IWbemServices *pSvc;
 };

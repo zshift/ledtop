@@ -10,8 +10,6 @@
 #include "openhardwaremonitor.h"
 #include "../Include/LogitechLEDLib.h"
 
-using namespace std;
-
 #pragma comment(lib, "wbemuuid.lib")
 #pragma comment(lib, "LogitechLEDLib.lib")
 #pragma comment(lib, "advapi32.lib")
@@ -20,7 +18,7 @@ bool setup();
 bool logiSetLed(uint64_t color);
 void shutdown();
 uint64_t getColor(temp t, uint64_t limit);
-void handle_eptr(exception_ptr eptr);
+void handle_eptr(std::exception_ptr eptr);
 
 int main()
 {
@@ -33,14 +31,14 @@ int main()
     auto asus = AsusLed::Init();
     if (asus == nullptr)
     {
-        cout << "Failed to initialize Asus led." << endl;
+        std::cout << "Failed to initialize Asus led." << std::endl;
         return 1;
     }
 
     auto ohm = OpenHardwareMonitor::Init();
     if (ohm == nullptr)
     {
-        cout << "Failed to initialize OpenHardwareMonitor." << endl;
+        std::cout << "Failed to initialize OpenHardwareMonitor." << std::endl;
         return 1;
     }
 
@@ -49,7 +47,7 @@ int main()
         temps t = ohm->GetTemps();
         if (t.nil == true)
         {
-            cout << "Failed to get temps." << endl;
+            std::cout << "Failed to get temps." << std::endl;
         }
 
         uint64_t cpuColor = getColor(t.cpu, 90);
@@ -58,11 +56,11 @@ int main()
         logiSetLed(gpuColor);
         asus->SetLeds(cpuColor);
 
-        cout << "GPU temp: " << t.gpu.val << "C" << endl;
-        cout << "CPU temp: " << t.cpu.val << "C" << endl
-             << endl;
+        std::cout << "GPU temp: " << t.gpu.val << "C" << std::endl;
+        std::cout << "CPU temp: " << t.cpu.val << "C" << std::endl
+             << std::endl;
 
-        this_thread::sleep_for(chrono::seconds(10));
+        std::this_thread::sleep_for(std::chrono::seconds(10));
     }
 
     shutdown();
@@ -79,18 +77,18 @@ bool setup()
 
 bool logiSetup()
 {
-    exception_ptr eptr;
+    std::exception_ptr eptr;
     try
     {
 
         if (!LogiLedInit())
         {
-            cout << "Unable to connect to Logitech devices. Make sure you are running Logitech Gaming Software." << endl;
+            std::cout << "Unable to connect to Logitech devices. Make sure you are running Logitech Gaming Software." << std::endl;
             return false;
         }
         if (!LogiLedSaveCurrentLighting())
         {
-            cout << "Could not save current Logi lighting" << endl;
+            std::cout << "Could not save current Logi lighting" << std::endl;
             LogiLedShutdown();
             return false;
         }
@@ -110,7 +108,7 @@ bool comSetup()
     hr = CoInitializeEx(0, COINIT_MULTITHREADED);
     if (FAILED(hr))
     {
-        cout << "Failed to initialize COM library. Error code = 0x" << hex << hr << endl;
+        std::cout << "Failed to initialize COM library. Error code = 0x" << std::hex << hr << std::endl;
         return false;
     }
 
@@ -128,7 +126,7 @@ bool comSetup()
 
     if (FAILED(hr))
     {
-        cout << "Failed to initialize security. Error code 0x" << hex << hr << endl;
+        std::cout << "Failed to initialize security. Error code 0x" << std::hex << hr << std::endl;
         CoUninitialize();
         return false;
     }
@@ -153,7 +151,7 @@ bool logiSetLed(uint64_t color)
 
     if (!LogiLedSetLighting(redPct, greenPct, bluePct))
     {
-        cout << "Could not set light color" << endl;
+        std::cout << "Could not set light color" << std::endl;
         return false;
     }
 
@@ -168,17 +166,17 @@ void shutdown()
     CoUninitialize();
 }
 
-void handle_eptr(exception_ptr eptr)
+void handle_eptr(std::exception_ptr eptr)
 {
     try
     {
         if (eptr)
         {
-            rethrow_exception(eptr);
+            std::rethrow_exception(eptr);
         }
     }
-    catch (const exception &e)
+    catch (const std::exception &e)
     {
-        cout << "Caught exception \"" << e.what() << "\"\n";
+        std::cout << "Caught exception \"" << e.what() << "\"\n";
     }
 }

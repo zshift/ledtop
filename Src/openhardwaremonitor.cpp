@@ -3,15 +3,13 @@
 
 #include "openhardwaremonitor.h"
 
-using namespace std;
-
 OpenHardwareMonitor::~OpenHardwareMonitor()
 {
     pSvc->Release();
     pLoc->Release();
 }
 
-unique_ptr<OpenHardwareMonitor> OpenHardwareMonitor::Init()
+std::unique_ptr<OpenHardwareMonitor> OpenHardwareMonitor::Init()
 {
     IWbemLocator *pLoc = nullptr;
 
@@ -24,8 +22,8 @@ unique_ptr<OpenHardwareMonitor> OpenHardwareMonitor::Init()
 
     if (FAILED(hr))
     {
-        cout << "Failed to create IWbemLocator object."
-             << " Err code = 0x" << hex << hr << endl;
+        std::cout << "Failed to create IWbemLocator object."
+                  << " Err code = 0x" << std::hex << hr << std::endl;
         CoUninitialize();
         return nullptr;
     }
@@ -47,7 +45,7 @@ unique_ptr<OpenHardwareMonitor> OpenHardwareMonitor::Init()
     );
     if (FAILED(hr))
     {
-        cout << "Could not connect. Error code = 0x" << hex << hr << endl;
+        std::cout << "Could not connect. Error code = 0x" << std::hex << hr << std::endl;
         pLoc->Release();
         return nullptr;
     }
@@ -64,13 +62,13 @@ unique_ptr<OpenHardwareMonitor> OpenHardwareMonitor::Init()
     );
     if (FAILED(hr))
     {
-        cout << "Could not set proxy blanket. Error code = 0x" << hex << hr << endl;
+        std::cout << "Could not set proxy blanket. Error code = 0x" << std::hex << hr << std::endl;
         pSvc->Release();
         pLoc->Release();
         return nullptr;
     }
 
-    return make_unique<OpenHardwareMonitor>(pLoc, pSvc);
+    return std::make_unique<OpenHardwareMonitor>(pLoc, pSvc);
 }
 
 temps OpenHardwareMonitor::GetTemps()
@@ -86,9 +84,9 @@ temps OpenHardwareMonitor::GetTemps()
         &pEnumerator);
     if (FAILED(hr))
     {
-        cout << "Query for Sensors name failed."
-             << " Error code = 0x"
-             << hex << hr << endl;
+        std::cout << "Query for Sensors name failed."
+                  << " Error code = 0x"
+                  << std::hex << hr << std::endl;
         t.nil = true;
         return t;
     }
@@ -120,7 +118,7 @@ temps OpenHardwareMonitor::GetTemps()
         hr = pclsObj->Get(L"Value", 0, &vtProp, NULL, NULL);
         if (FAILED(hr))
         {
-            cout << "Failed to get temp value." << endl;
+            std::cout << "Failed to get temp value." << std::endl;
             VariantClear(&vtProp);
             pclsObj->Release();
             continue;
@@ -130,7 +128,7 @@ temps OpenHardwareMonitor::GetTemps()
         hr = pclsObj->Get(L"Min", 0, &vtProp, NULL, NULL);
         if (FAILED(hr))
         {
-            cout << "Failed to get temp value." << endl;
+            std::cout << "Failed to get temp value." << std::endl;
             VariantClear(&vtProp);
             pclsObj->Release();
             continue;
@@ -140,7 +138,7 @@ temps OpenHardwareMonitor::GetTemps()
         hr = pclsObj->Get(L"Max", 0, &vtProp, NULL, NULL);
         if (FAILED(hr))
         {
-            cout << "Failed to get temp value." << endl;
+            std::cout << "Failed to get temp value." << std::endl;
             VariantClear(&vtProp);
             pclsObj->Release();
             continue;
@@ -150,7 +148,7 @@ temps OpenHardwareMonitor::GetTemps()
         hr = pclsObj->Get(L"Name", 0, &vtProp, NULL, NULL);
         if (FAILED(hr))
         {
-            cout << "Failed to get temp value." << endl;
+            std::cout << "Failed to get temp value." << std::endl;
             VariantClear(&vtProp);
             pclsObj->Release();
             continue;

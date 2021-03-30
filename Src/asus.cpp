@@ -8,14 +8,16 @@ AsusLed::~AsusLed()
     devices->Release();
 }
 
-unique_ptr<AsusLed> AsusLed::Init()
+std::unique_ptr<AsusLed> AsusLed::Init()
 {
+    using namespace AuraServiceLib;
+
     // CreateAura  SDK Instance
     IAuraSdkPtr sdk = nullptr;
     HRESULT hr = sdk.CreateInstance(__uuidof(AuraSdk), nullptr, CLSCTX_INPROC_SERVER);
     if (FAILED(hr))
     {
-        cout << "Failed to create Aura sdk instance. Error code 0x" << hex << hr << endl;
+        std::cout << "Failed to create Aura sdk instance. Error code 0x" << std::hex << hr << std::endl;
         CoUninitialize();
         return nullptr;
     }
@@ -24,9 +26,10 @@ unique_ptr<AsusLed> AsusLed::Init()
     sdk->SwitchMode();
 
     // Enumerate all devices
-    auto devices = sdk->Enumerate(0); // 0 means ALL
+    const int ALL = 0;
+    auto devices = sdk->Enumerate(ALL);
 
-    return make_unique<AsusLed>(sdk, devices);
+    return std::make_unique<AsusLed>(sdk, devices);
 }
 
 void AsusLed::SetLeds(uint64_t color)
